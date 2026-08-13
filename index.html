@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Weekly Schedule — Jadual Staff</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef1f4;color:#111}
+button,input,select{font:inherit}
+.app{max-width:1400px;margin:auto;padding:14px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.toolbar button{border:0;border-radius:10px;padding:11px 15px;background:#17324f;color:white;font-weight:700;cursor:pointer}
+.toolbar button.secondary{background:#fff;color:#17324f;border:1px solid #ccd3da}
+.toolbar button.danger{background:#9c2632}
+.sheet{background:#fff;border:2px solid #111;box-shadow:0 3px 12px #0002;overflow:hidden}
+.schedule-wrap{overflow:auto}
+.schedule{min-width:1080px;display:grid;grid-template-columns:145px repeat(7,minmax(105px,1fr)) 300px}
+.cell{border-right:1px solid #999;border-bottom:1px solid #999;min-height:88px;display:flex;align-items:center;justify-content:center;text-align:center;padding:7px;position:relative}
+.header{font-weight:800;font-size:20px;min-height:76px;background:#f5f5f5}
+.name{font-weight:800;font-size:17px;white-space:pre-line;justify-content:flex-start;padding-left:18px}
+.shift{font-size:18px;font-weight:500;cursor:pointer;white-space:pre-line}
+.rest{background:#a9dcea}
+.empty{color:#777}
+.legend{grid-row:1 / span 20;grid-column:9;padding:20px;background:#fff;display:block;border-bottom:0}
+.legend h2,.legend h3{margin:0 0 12px;text-align:center;color:white;background:#17324f;border-radius:12px;padding:7px}
+.legend h1{font-size:44px;line-height:.95;margin:45px 0;text-align:center;color:#17324f}
+.legend p{margin:9px 0;font-size:16px}
+.editor{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}
+.modal{background:#fff;border-radius:16px;max-width:430px;width:100%;padding:20px;box-shadow:0 15px 50px #0005}
+.modal h2{margin-top:0}
+.modal label{display:block;font-weight:700;margin:10px 0 5px}
+.modal input,.modal select{width:100%;padding:11px;border:1px solid #bbb;border-radius:9px}
+.actions{display:flex;gap:8px;margin-top:16px}
+.actions button{flex:1;padding:11px;border:0;border-radius:9px;font-weight:700;cursor:pointer}
+.save{background:#17324f;color:#fff}.cancel{background:#e8ecef}
+.note{font-size:12px;color:#666;margin-top:8px}
+@media(max-width:700px){.app{padding:8px}.toolbar button{padding:9px 11px}.schedule{min-width:980px}}
+
+<style>
+.datebar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.datebar label{font-weight:800}
+.datebar input{padding:10px;border:1px solid #bbb;border-radius:9px}
+.dayedit{font-size:12px;color:#17324f;cursor:pointer;margin-top:4px;text-decoration:underline}
+.datehead{display:flex;flex-direction:column;align-items:center;gap:2px}
+</style>
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="toolbar">
+    <button onclick="prevWeek()">← Minggu lepas</button>
+    <button onclick="goToday()">Hari ini</button>
+    <button onclick="nextWeek()">Minggu depan →</button>
+    <button class="secondary" onclick="addStaff()">＋ Tambah staff</button>
+    <button class="secondary" onclick="saveData()">💾 Save</button>
+    <button class="secondary" onclick="exportPNG()">🖼️ Save gambar</button>
+    <button onclick="shareWhatsApp()">📲 WhatsApp</button>
+    <button class="danger" onclick="resetData()">Reset</button>
+  </div>
+
+  
+  <div class="datebar">
+    <label for="weekPicker">SET TARIKH MINGGU:</label>
+    <input id="weekPicker" type="date" onchange="setWeekFromPicker(this.value)">
+    <button class="secondary" onclick="resetWeekDates()">↻ Reset tarikh ikut minggu</button>
+    <span id="weekRange" style="font-weight:700;color:#17324f"></span>
+  </div>
+<div id="sheet" class="sheet">
+    <div id="grid" class="schedule"></div>
+  </div>
+  <div class="note">Tip: tekan mana-mana kotak shift untuk edit. Data disimpan dalam browser phone.</div>
+</div>
+
+<div id="editor" class="editor" onclick="if(event.target===this)closeEditor()">
+  <div class="modal">
+    <h2>Edit jadual</h2>
+    <label>Nama staff</label>
+    <input id="editName">
+    <label>Shift</label>
+    <select id="editShift">
+      <option value="">Kosong</option><option value="M">M — Morning</option>
+      <option value="N">N — Noon</option><option value="F">F — Full</option>
+      <option value="S">S — Special</option><option value="R">R — Rest (Off Day)</option>
+    </select>
+    <label>Catatan bawah shift (contoh: 4.5)</label>
+    <input id="editNote" placeholder="Optional">
+    <div class="actions">
+      <button class="cancel" onclick="closeEditor()">Batal</button>
+      <button class="save" onclick="applyEdit()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const defaultStaff = [
+  {name:"NORA\\n(CS)", shifts:["N","M","R","N","S","N","M"], notes:["","","","","","","4.5"]},
+  {name:"DANISA\\n(CS)", shifts:["N","N","M","R","N","S","N"], notes:["","","4.5","","","",""]},
+  {name:"PRIYA\\n(CS)", shifts:["S","N","N","M","N","N","R"], notes:["","","","4.5","","",""]},
+  {name:"EDDY\\n(SK)", shifts:["R","M","S","N","N","M","N"], notes:["","4.5","","","","",""]},
+  {name:"SAM\\n(SK)", shifts:["M","N","N","M","S","R","N"], notes:["","","","4.5","","",""]},
+  {name:"SYAFIQ\\n(SK)", shifts:["N","R","M","N","","",""], notes:["","","","","","",""]},
+  {name:"Hafiz\\n(SK)", shifts:["M","M","N","R","N","N","S"], notes:["4.5","","","","","",""]}
+];
+
+let data = JSON.parse(localStorage.getItem("jadualStaffV1") || "null") || {weekStart:"2026-07-20", staff:defaultStaff};
+if(!data.dates) data.dates = Array.from({length:7},(_,i)=>addDays(data.weekStart,i));
+let editing={r:0,c:0};
+
+function dateObj(s){let [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}
+function iso(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function addDays(s,n){let d=dateObj(s);d.setDate(d.getDate()+n);return iso(d)}
+function fmt(s){let d=dateObj(s);return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}`}
+function render(){
+ document.getElementById("weekPicker").value=data.weekStart;
+ document.getElementById("weekRange").textContent=`${fmt(data.dates[0])} - ${fmt(data.dates[6])}`;
+ const start=dateObj(data.weekStart), days=["MON.","TUE.","WED.","THUR.","FRI.","SAT.","SUN."];
+ let g=document.getElementById("grid");
+ g.innerHTML="";
+ g.appendChild(cell("NAME","header"));
+ for(let c=0;c<7;c++){
+   let ds = data.dates && data.dates[c] ? data.dates[c] : addDays(data.weekStart,c);
+   let x=cell("","header");
+   x.innerHTML=`<div class="datehead"><b>${days[c]}</b><span>${fmt(ds)}</span><span class="dayedit" onclick="event.stopPropagation();editDate(${c})">✎ edit tarikh</span></div>`;
+   g.appendChild(x);
+ }
+ let leg=cell("", "legend"); leg.innerHTML=`<h2>TIMEFRAME</h2>
+ <p><b>M — MORNING</b> &nbsp; 8:45 AM – 5:45 PM</p>
+ <p><b>N — NOON</b> &nbsp; 2:15 PM – 11:15 PM</p>
+ <p><b>F — FULL</b> &nbsp; 8:45 AM – 11:15 PM</p>
+ <p><b>S — SPECIAL</b> &nbsp; 8:45 AM – 1:45 PM</p>
+ <p><b>R — REST</b> (OFF DAY)</p>
+ <h1>WEEKLY<br>SCHEDULE</h1>
+ <h3>REST TIME</h3>
+ <p style="text-align:center"><b>Morning</b><br>• 1:00 PM – 2:00 PM<br>• 2:00 PM – 3:00 PM</p>
+ <p style="text-align:center"><b>Noon</b><br>• 4:30 PM – 5:30 PM<br>• 5:30 PM – 6:30 PM</p>
+ <p style="text-align:center"><b>Full</b><br>• 12:30 PM – 1:30 PM<br>• 5:00 PM – 6:00 PM</p>`;
+ g.appendChild(leg);
+ data.staff.forEach((person,r)=>{
+   let n=cell(person.name,"name"); n.onclick=()=>edit(r,0,true); g.appendChild(n);
+   for(let c=0;c<7;c++){
+     let sh=person.shifts[c]||"", note=person.notes[c]||"";
+     let x=cell(sh+(note?`\\n(${note})`:""),"shift "+(sh==="R"?"rest":"")+(sh===""?" empty":""));
+     x.onclick=()=>edit(r,c,false); g.appendChild(x);
+   }
+ });
+}
+function cell(t,cls){let x=document.createElement("div");x.className="cell "+cls;x.textContent=t;return x}
+function edit(r,c,nameOnly){
+ editing={r,c,nameOnly};
+ document.getElementById("editName").value=data.staff[r].name.replace("\\n"," ");
+ document.getElementById("editShift").value=data.staff[r].shifts[c]||"";
+ document.getElementById("editNote").value=data.staff[r].notes[c]||"";
+ document.getElementById("editor").style.display="flex";
+}
+function closeEditor(){document.getElementById("editor").style.display="none"}
+function applyEdit(){
+ let p=data.staff[editing.r];
+ p.name=document.getElementById("editName").value.trim().replace(/\\n/g," ");
+ if(!editing.nameOnly){p.shifts[editing.c]=document.getElementById("editShift").value;p.notes[editing.c]=document.getElementById("editNote").value.trim()}
+ saveData();closeEditor();render();
+}
+
+function editDate(c){
+  const old=data.dates[c]||addDays(data.weekStart,c);
+  const v=prompt(`Tarikh untuk ${["Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu","Ahad"][c]} (YYYY-MM-DD):`,old);
+  if(!v)return;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(v)){alert("Format tarikh mesti YYYY-MM-DD.");return}
+  data.dates[c]=v; saveData(); render();
+}
+function setWeekFromPicker(v){
+  if(!v)return;
+  data.weekStart=v;
+  data.dates=Array.from({length:7},(_,i)=>addDays(v,i));
+  saveData(); render();
+}
+function resetWeekDates(){
+  data.dates=Array.from({length:7},(_,i)=>addDays(data.weekStart,i));
+  saveData(); render();
+}
+
+function saveData(){localStorage.setItem("jadualStaffV1",JSON.stringify(data));}
+function addStaff(){let name=prompt("Nama staff baru?");if(!name)return;data.staff.push({name,shifts:["","","","","","",""],notes:["","","","","","",""]});saveData();render()}
+function resetData(){if(confirm("Reset semua data ke contoh asal?")){localStorage.removeItem("jadualStaffV1");location.reload()}}
+function prevWeek(){data.weekStart=addDays(data.weekStart,-7);data.dates=Array.from({length:7},(_,i)=>addDays(data.weekStart,i));saveData();render()}
+function nextWeek(){data.weekStart=addDays(data.weekStart,7);data.dates=Array.from({length:7},(_,i)=>addDays(data.weekStart,i));saveData();render()}
+function goToday(){let d=new Date();let day=d.getDay();let diff=day===0?-6:1-day;d.setDate(d.getDate()+diff);data.weekStart=iso(d);data.dates=Array.from({length:7},(_,i)=>addDays(data.weekStart,i));saveData();render()}
+
+async function exportPNG(){
+ if(!window.html2canvas){alert("Library gambar belum siap. Cuba lagi.");return}
+ const canvas=await html2canvas(document.getElementById("sheet"),{scale:2,backgroundColor:"#fff",useCORS:true});
+ const a=document.createElement("a");a.download="weekly-schedule.png";a.href=canvas.toDataURL("image/png");a.click();
+}
+async function shareWhatsApp(){
+ try{
+   const canvas=await html2canvas(document.getElementById("sheet"),{scale:2,backgroundColor:"#fff"});
+   const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
+   const file=new File([blob],"weekly-schedule.png",{type:"image/png"});
+   if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+     await navigator.share({title:"Weekly Schedule",files:[file]});
+   }else{
+     const text=encodeURIComponent("Weekly Schedule");
+     window.open("https://wa.me/?text="+text,"_blank");
+     alert("Phone/browser ini tak benarkan share gambar terus. Gambar tetap boleh disimpan melalui 'Save gambar', kemudian hantar ke WhatsApp.");
+   }
+ }catch(e){console.log(e)}
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</body>
+</html>

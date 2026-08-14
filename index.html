@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Weekly Schedule — Jadual Staff</title>
+<title>Weekly Schedule</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef1f4;color:#111}
@@ -36,15 +36,12 @@ button,input,select{font:inherit}
 .save{background:#17324f;color:#fff}.cancel{background:#e8ecef}
 .note{font-size:12px;color:#666;margin-top:8px}
 @media(max-width:700px){.app{padding:8px}.toolbar button{padding:9px 11px}.schedule{min-width:980px}}
-
 <style>
-.datebar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}
-.datebar label{font-weight:800}
-.datebar input{padding:10px;border:1px solid #bbb;border-radius:9px}
-.dayedit{font-size:12px;color:#17324f;cursor:pointer;margin-top:4px;text-decoration:underline}
-.datehead{display:flex;flex-direction:column;align-items:center;gap:2px}
-</style>
-</style>
+.schedule-wrap{width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;overscroll-behavior-x:contain;scrollbar-width:thin}
+.schedule{width:max-content;min-width:100%;grid-template-columns:145px repeat(7,125px) 300px}
+.scrollhint{display:none;margin:6px 0 10px;padding:7px 10px;border-radius:8px;background:#fff;border:1px solid #ccd3da;color:#17324f;font-size:13px;font-weight:700;text-align:center}
+@media(max-width:700px){.scrollhint{display:block}.schedule-wrap{overflow-x:scroll}.schedule{grid-template-columns:125px repeat(7,125px) 285px}}
+</style></style>
 </head>
 <body>
 <div class="app">
@@ -59,15 +56,8 @@ button,input,select{font:inherit}
     <button class="danger" onclick="resetData()">Reset</button>
   </div>
 
-  
-  <div class="datebar">
-    <label for="weekPicker">SET TARIKH MINGGU:</label>
-    <input id="weekPicker" type="date" onchange="setWeekFromPicker(this.value)">
-    <button class="secondary" onclick="resetWeekDates()">↻ Reset tarikh ikut minggu</button>
-    <span id="weekRange" style="font-weight:700;color:#17324f"></span>
-  </div>
-<div id="sheet" class="sheet">
-    <div id="grid" class="schedule"></div>
+  <div class="sheet"><div class="schedule-wrap" id="scheduleScroller">
+    <div id="grid" class="schedule"></div></div>
   </div>
   <div class="note">Tip: tekan mana-mana kotak shift untuk edit. Data disimpan dalam browser phone.</div>
 </div>
@@ -104,26 +94,19 @@ const defaultStaff = [
 ];
 
 let data = JSON.parse(localStorage.getItem("jadualStaffV1") || "null") || {weekStart:"2026-07-20", staff:defaultStaff};
-if(!data.dates) data.dates = Array.from({length:7},(_,i)=>addDays(data.weekStart,i));
 let editing={r:0,c:0};
 
 function dateObj(s){let [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}
 function iso(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function addDays(s,n){let d=dateObj(s);d.setDate(d.getDate()+n);return iso(d)}
 function fmt(s){let d=dateObj(s);return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}`}
+function scrollSchedule(dir){const el=document.getElementById("scheduleScroller");if(el)el.scrollBy({left:dir*500,behavior:"smooth"});}
 function render(){
- document.getElementById("weekPicker").value=data.weekStart;
- document.getElementById("weekRange").textContent=`${fmt(data.dates[0])} - ${fmt(data.dates[6])}`;
  const start=dateObj(data.weekStart), days=["MON.","TUE.","WED.","THUR.","FRI.","SAT.","SUN."];
  let g=document.getElementById("grid");
  g.innerHTML="";
  g.appendChild(cell("NAME","header"));
- for(let c=0;c<7;c++){
-   let ds = data.dates && data.dates[c] ? data.dates[c] : addDays(data.weekStart,c);
-   let x=cell("","header");
-   x.innerHTML=`<div class="datehead"><b>${days[c]}</b><span>${fmt(ds)}</span><span class="dayedit" onclick="event.stopPropagation();editDate(${c})">✎ edit tarikh</span></div>`;
-   g.appendChild(x);
- }
+ for(let c=0;c<7;c++){let x=cell(`${days[c]}\\n${fmt(addDays(data.weekStart,c))}`,"header");g.appendChild(x)}
  let leg=cell("", "legend"); leg.innerHTML=`<h2>TIMEFRAME</h2>
  <p><b>M — MORNING</b> &nbsp; 8:45 AM – 5:45 PM</p>
  <p><b>N — NOON</b> &nbsp; 2:15 PM – 11:15 PM</p>
@@ -160,31 +143,12 @@ function applyEdit(){
  if(!editing.nameOnly){p.shifts[editing.c]=document.getElementById("editShift").value;p.notes[editing.c]=document.getElementById("editNote").value.trim()}
  saveData();closeEditor();render();
 }
-
-function editDate(c){
-  const old=data.dates[c]||addDays(data.weekStart,c);
-  const v=prompt(`Tarikh untuk ${["Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu","Ahad"][c]} (YYYY-MM-DD):`,old);
-  if(!v)return;
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(v)){alert("Format tarikh mesti YYYY-MM-DD.");return}
-  data.dates[c]=v; saveData(); render();
-}
-function setWeekFromPicker(v){
-  if(!v)return;
-  data.weekStart=v;
-  data.dates=Array.from({length:7},(_,i)=>addDays(v,i));
-  saveData(); render();
-}
-function resetWeekDates(){
-  data.dates=Array.from({length:7},(_,i)=>addDays(data.weekStart,i));
-  saveData(); render();
-}
-
 function saveData(){localStorage.setItem("jadualStaffV1",JSON.stringify(data));}
 function addStaff(){let name=prompt("Nama staff baru?");if(!name)return;data.staff.push({name,shifts:["","","","","","",""],notes:["","","","","","",""]});saveData();render()}
 function resetData(){if(confirm("Reset semua data ke contoh asal?")){localStorage.removeItem("jadualStaffV1");location.reload()}}
-function prevWeek(){data.weekStart=addDays(data.weekStart,-7);data.dates=Array.from({length:7},(_,i)=>addDays(data.weekStart,i));saveData();render()}
-function nextWeek(){data.weekStart=addDays(data.weekStart,7);data.dates=Array.from({length:7},(_,i)=>addDays(data.weekStart,i));saveData();render()}
-function goToday(){let d=new Date();let day=d.getDay();let diff=day===0?-6:1-day;d.setDate(d.getDate()+diff);data.weekStart=iso(d);data.dates=Array.from({length:7},(_,i)=>addDays(data.weekStart,i));saveData();render()}
+function prevWeek(){data.weekStart=addDays(data.weekStart,-7);saveData();render()}
+function nextWeek(){data.weekStart=addDays(data.weekStart,7);saveData();render()}
+function goToday(){let d=new Date();let day=d.getDay();let diff=day===0?-6:1-day;d.setDate(d.getDate()+diff);data.weekStart=iso(d);saveData();render()}
 
 async function exportPNG(){
  if(!window.html2canvas){alert("Library gambar belum siap. Cuba lagi.");return}

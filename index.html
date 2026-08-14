@@ -41,7 +41,10 @@ button,input,select{font:inherit}
 .schedule{width:max-content;min-width:100%;grid-template-columns:145px repeat(7,125px) 300px}
 .scrollhint{display:none;margin:6px 0 10px;padding:7px 10px;border-radius:8px;background:#fff;border:1px solid #ccd3da;color:#17324f;font-size:13px;font-weight:700;text-align:center}
 @media(max-width:700px){.scrollhint{display:block}.schedule-wrap{overflow-x:scroll}.schedule{grid-template-columns:125px repeat(7,125px) 285px}}
-</style></style>
+<style>
+.exporting .schedule-wrap{overflow:visible!important}
+.exporting .schedule{width:max-content!important;min-width:0!important}
+</style></style></style>
 </head>
 <body>
 <div class="app">
@@ -51,7 +54,7 @@ button,input,select{font:inherit}
     <button onclick="nextWeek()">Minggu depan →</button>
     <button class="secondary" onclick="addStaff()">＋ Tambah staff</button>
     <button class="secondary" onclick="saveData()">💾 Save</button>
-    <button class="secondary" onclick="exportPNG()">🖼️ Save gambar</button>
+    <button class="secondary" onclick="exportPNG()">🖼️ Save FULL gambar</button>
     <button onclick="shareWhatsApp()">📲 WhatsApp</button>
     <button class="danger" onclick="resetData()">Reset</button>
   </div>
@@ -150,24 +153,45 @@ function prevWeek(){data.weekStart=addDays(data.weekStart,-7);saveData();render(
 function nextWeek(){data.weekStart=addDays(data.weekStart,7);saveData();render()}
 function goToday(){let d=new Date();let day=d.getDay();let diff=day===0?-6:1-day;d.setDate(d.getDate()+diff);data.weekStart=iso(d);saveData();render()}
 
+async function makeFullScheduleBlob(){
+  if(!window.html2canvas) throw new Error("html2canvas belum dimuat");
+  const sheet=document.getElementById("sheet"), wrap=document.getElementById("scheduleScroller");
+  const old=wrap?wrap.getAttribute("style"):null;
+  document.body.classList.add("exporting");
+  if(wrap) wrap.setAttribute("style","overflow:visible;width:max-content;max-width:none;");
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  try{
+    const canvas=await html2canvas(sheet,{
+      scale:2, backgroundColor:"#fff", useCORS:true, logging:false,
+      width:sheet.scrollWidth, height:sheet.scrollHeight,
+      windowWidth:Math.max(innerWidth,sheet.scrollWidth),
+      windowHeight:Math.max(innerHeight,sheet.scrollHeight), scrollX:0, scrollY:0
+    });
+    return await new Promise(r=>canvas.toBlob(r,"image/png",1));
+  }finally{
+    if(wrap){if(old===null)wrap.removeAttribute("style");else wrap.setAttribute("style",old);}
+    document.body.classList.remove("exporting");
+  }
+}
 async function exportPNG(){
- if(!window.html2canvas){alert("Library gambar belum siap. Cuba lagi.");return}
- const canvas=await html2canvas(document.getElementById("sheet"),{scale:2,backgroundColor:"#fff",useCORS:true});
- const a=document.createElement("a");a.download="weekly-schedule.png";a.href=canvas.toDataURL("image/png");a.click();
+  try{
+    const blob=await makeFullScheduleBlob(), url=URL.createObjectURL(blob);
+    const a=document.createElement("a"); a.href=url; a.download="weekly-schedule-full.png";
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),3000);
+  }catch(e){alert("Tak dapat buat gambar. Pastikan internet aktif dan cuba lagi.");console.error(e);}
 }
 async function shareWhatsApp(){
- try{
-   const canvas=await html2canvas(document.getElementById("sheet"),{scale:2,backgroundColor:"#fff"});
-   const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
-   const file=new File([blob],"weekly-schedule.png",{type:"image/png"});
-   if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-     await navigator.share({title:"Weekly Schedule",files:[file]});
-   }else{
-     const text=encodeURIComponent("Weekly Schedule");
-     window.open("https://wa.me/?text="+text,"_blank");
-     alert("Phone/browser ini tak benarkan share gambar terus. Gambar tetap boleh disimpan melalui 'Save gambar', kemudian hantar ke WhatsApp.");
-   }
- }catch(e){console.log(e)}
+  try{
+    const blob=await makeFullScheduleBlob(), file=new File([blob],"weekly-schedule-full.png",{type:"image/png"});
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({title:"Weekly Schedule",text:"Weekly Schedule",files:[file]});
+    }else{
+      const url=URL.createObjectURL(blob), a=document.createElement("a");
+      a.href=url; a.download="weekly-schedule-full.png"; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),3000);
+      alert("Gambar penuh sudah disimpan. Attach gambar itu dalam WhatsApp.");
+    }
+  }catch(e){if(e.name!=="AbortError")alert("Share gagal. Cuba Save FULL gambar dahulu.");console.error(e);}
 }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>

@@ -1,29 +1,29 @@
 {
-  "name": "Jadual Shift Staff 99",
-  "short_name": "Jadual Shift",
+  "nama": "Jadual Syif Staf 99",
+  "short_name": "Anjakan Jadual",
   "description": "Aplikasi pengurusan jadual shift staff 99 Speedmart secara mingguan.",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#f37021",
-  "icons": [
+  "url_mula": "./",
+  "paparan": "berdiri sendiri",
+  "warna_latar_belakang": "#ffffff",
+  "warna_tema": "#f37021",
+  "ikon": [
     {
-      "src": "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23ffffff'/%3E%3Cg transform='translate(60, 90) scale(1.6)'%3E%3Cpath d='M100 80 C80 80 50 100 40 120 C35 130 35 140 40 150 C50 170 80 175 100 175 L100 150 C85 150 65 145 60 135 C58 130 58 125 60 120 C65 110 85 100 100 100 Z' fill='%23f37021'/%3E%3Cpath d='M35 50 L100 50 L75 120 L35 120 Z' fill='%23f37021'/%3E%3Ccircle cx='45' cy='140' r='16' fill='none' stroke='%23f37021' stroke-width='6'/%3E%3Ccircle cx='45' cy='140' r='6' fill='%23f37021'/%3E%3Cpath d='M190 80 C170 80 140 100 130 120 C125 130 125 140 130 150 C140 170 170 175 190 175 L190 150 C175 150 155 145 150 135 C148 130 148 125 150 120 C155 110 175 100 190 100 Z' fill='%23f37021'/%3E%3Cpath d='M125 50 L190 50 L165 120 L125 120 Z' fill='%23f37021'/%3E%3Cpath d='M190 50 L200 35' stroke='%23f37021' stroke-width='6' stroke-linecap='round'/%3E%3Ccircle cx='202' cy='32' r='6' fill='%23f37021'/%3E%3Ccircle cx='135' cy='140' r='16' fill='none' stroke='%23f37021' stroke-width='6'/%3E%3Ccircle cx='135' cy='140' r='6' fill='%23f37021'/%3E%3Ctext x='120' y='185' font-family='Arial Black, sans-serif' font-size='22' font-weight='900' fill='%23f37021' text-anchor='middle' letter-spacing='2'%3ESPEEDMART%3C/text%3E%3C/g%3E%3C/svg%3E",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any"
+      "src": "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23ffffff'/%3E%3Cg transform='translate(60, 90) scale(1.6)'%3E%3Cpath d='M100 80 C80 80 50 100 40 120 C35 130 35 140 40 150 C50 170 80 175 100 175 L100 150 C85 150 65 145 60 135 C58 130 58 125 60 120 C65 110 85 100 100 100 Z' isi='%23f37021'/%3E%3Claluan d='M35 50 L100 50 L75 120 L35 120 Z' isi='%23f37021'/%3E%3Cbulatan cx='45' cy='140' r='16' isi='tiada' lejang='%23f37021' lebar-lejang='6'/%3E%3Cbulatan cx='45' cy='140' r='6' isi='%23f37021'/%3E%3Claluan d='M190 80 C170 80 140 100 130 120 C125 130 125 140 130 150 C140 170 170 175 190 175 L190 150 C175 150 155 145 150 135 C148 130 148 125 150 120 C155 110 175 100 190 100 Z' isi='%23f37021'/%3E%3Claluan d='M125 50 L190 50 L165 120 L125 120 Z' isi='%23f37021'/%3E%3Claluan d='M190 50 L200 35' lejang='%23f37021' lebar-strok='6' penutup-garis-stroke='bulat'/%3E%3Cbulatan cx='202' cy='32' r='6' isi='%23f37021'/%3E%3Cbulatan cx='135' cy='140' r='16' isi='tiada' stroke='%23f37021' lebar-stroke='6'/%3E%3Cbulatan cx='135' cy='140' r='6' isi='%23f37021'/%3E%3Cteks x='120' y='185' keluarga-font='Arial Hitam, sans-serif' saiz-font='22' berat-font='900' isi='%23f37021' sauh-teks='tengah' jarak-huruf='2'%3ESPEEDMART%3C/text%3E%3C/g%3E%3C/svg%3E",
+      "saiz": "192x192",
+      "jenis": "imej/svg+xml",
+      "tujuan": "apa-apa"
     },
     {
-      "src": "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23ffffff'/%3E%3Cg transform='translate(60, 90) scale(1.6)'%3E%3Cpath d='M100 80 C80 80 50 100 40 120 C35 130 35 140 40 150 C50 170 80 175 100 175 L100 150 C85 150 65 145 60 135 C58 130 58 125 60 120 C65 110 85 100 100 100 Z' fill='%23f37021'/%3E%3Cpath d='M35 50 L100 50 L75 120 L35 120 Z' fill='%23f37021'/%3E%3Ccircle cx='45' cy='140' r='16' fill='none' stroke='%23f37021' stroke-width='6'/%3E%3Ccircle cx='45' cy='140' r='6' fill='%23f37021'/%3E%3Cpath d='M190 80 C170 80 140 100 130 120 C125 130 125 140 130 150 C140 170 170 175 190 175 L190 150 C175 150 155 145 150 135 C148 130 148 125 150 120 C155 110 175 100 190 100 Z' fill='%23f37021'/%3E%3Cpath d='M125 50 L190 50 L165 120 L125 120 Z' fill='%23f37021'/%3E%3Cpath d='M190 50 L200 35' stroke='%23f37021' stroke-width='6' stroke-linecap='round'/%3E%3Ccircle cx='202' cy='32' r='6' fill='%23f37021'/%3E%3Ccircle cx='135' cy='140' r='16' fill='none' stroke='%23f37021' stroke-width='6'/%3E%3Ccircle cx='135' cy='140' r='6' fill='%23f37021'/%3E%3Ctext x='120' y='185' font-family='Arial Black, sans-serif' font-size='22' font-weight='900' fill='%23f37021' text-anchor='middle' letter-spacing='2'%3ESPEEDMART%3C/text%3E%3C/g%3E%3C/svg%3E",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any"
+      "src": "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23ffffff'/%3E%3Cg transform='translate(60, 90) scale(1.6)'%3E%3Cpath d='M100 80 C80 80 50 100 40 120 C35 130 35 140 40 150 C50 170 80 175 100 175 L100 150 C85 150 65 145 60 135 C58 130 58 125 60 120 C65 110 85 100 100 100 Z' isi='%23f37021'/%3E%3Claluan d='M35 50 L100 50 L75 120 L35 120 Z' isi='%23f37021'/%3E%3Cbulatan cx='45' cy='140' r='16' isi='tiada' lejang='%23f37021' lebar-lejang='6'/%3E%3Cbulatan cx='45' cy='140' r='6' isi='%23f37021'/%3E%3Claluan d='M190 80 C170 80 140 100 130 120 C125 130 125 140 130 150 C140 170 170 175 190 175 L190 150 C175 150 155 145 150 135 C148 130 148 125 150 120 C155 110 175 100 190 100 Z' isi='%23f37021'/%3E%3Claluan d='M125 50 L190 50 L165 120 L125 120 Z' isi='%23f37021'/%3E%3Claluan d='M190 50 L200 35' lejang='%23f37021' lebar-strok='6' penutup-garis-stroke='bulat'/%3E%3Cbulatan cx='202' cy='32' r='6' isi='%23f37021'/%3E%3Cbulatan cx='135' cy='140' r='16' isi='tiada' stroke='%23f37021' lebar-stroke='6'/%3E%3Cbulatan cx='135' cy='140' r='6' isi='%23f37021'/%3E%3Cteks x='120' y='185' keluarga-font='Arial Hitam, sans-serif' saiz-font='22' berat-font='900' isi='%23f37021' sauh-teks='tengah' jarak-huruf='2'%3ESPEEDMART%3C/text%3E%3C/g%3E%3C/svg%3E",
+      "saiz": "512x512",
+      "jenis": "imej/svg+xml",
+      "tujuan": "apa-apa"
     },
     {
-      "src": "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23ffffff'/%3E%3Cg transform='translate(60, 90) scale(1.6)'%3E%3Cpath d='M100 80 C80 80 50 100 40 120 C35 130 35 140 40 150 C50 170 80 175 100 175 L100 150 C85 150 65 145 60 135 C58 130 58 125 60 120 C65 110 85 100 100 100 Z' fill='%23f37021'/%3E%3Cpath d='M35 50 L100 50 L75 120 L35 120 Z' fill='%23f37021'/%3E%3Ccircle cx='45' cy='140' r='16' fill='none' stroke='%23f37021' stroke-width='6'/%3E%3Ccircle cx='45' cy='140' r='6' fill='%23f37021'/%3E%3Cpath d='M190 80 C170 80 140 100 130 120 C125 130 125 140 130 150 C140 170 170 175 190 175 L190 150 C175 150 155 145 150 135 C148 130 148 125 150 120 C155 110 175 100 190 100 Z' fill='%23f37021'/%3E%3Cpath d='M125 50 L190 50 L165 120 L125 120 Z' fill='%23f37021'/%3E%3Cpath d='M190 50 L200 35' stroke='%23f37021' stroke-width='6' stroke-linecap='round'/%3E%3Ccircle cx='202' cy='32' r='6' fill='%23f37021'/%3E%3Ccircle cx='135' cy='140' r='16' fill='none' stroke='%23f37021' stroke-width='6'/%3E%3Ccircle cx='135' cy='140' r='6' fill='%23f37021'/%3E%3Ctext x='120' y='185' font-family='Arial Black, sans-serif' font-size='22' font-weight='900' fill='%23f37021' text-anchor='middle' letter-spacing='2'%3ESPEEDMART%3C/text%3E%3C/g%3E%3C/svg%3E",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
+      "src": "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23ffffff'/%3E%3Cg transform='translate(60, 90) scale(1.6)'%3E%3Cpath d='M100 80 C80 80 50 100 40 120 C35 130 35 140 40 150 C50 170 80 175 100 175 L100 150 C85 150 65 145 60 135 C58 130 58 125 60 120 C65 110 85 100 100 100 Z' isi='%23f37021'/%3E%3Claluan d='M35 50 L100 50 L75 120 L35 120 Z' isi='%23f37021'/%3E%3Cbulatan cx='45' cy='140' r='16' isi='tiada' lejang='%23f37021' lebar-lejang='6'/%3E%3Cbulatan cx='45' cy='140' r='6' isi='%23f37021'/%3E%3Claluan d='M190 80 C170 80 140 100 130 120 C125 130 125 140 130 150 C140 170 170 175 190 175 L190 150 C175 150 155 145 150 135 C148 130 148 125 150 120 C155 110 175 100 190 100 Z' isi='%23f37021'/%3E%3Claluan d='M125 50 L190 50 L165 120 L125 120 Z' isi='%23f37021'/%3E%3Claluan d='M190 50 L200 35' lejang='%23f37021' lebar-lejang='6' strok-linecap='bulat'/%3E%3Cbulatan cx='202' cy='32' r='6' isi='%23f37021'/%3E%3Cbulatan cx='135' cy='140' r='16' isi='tiada' strok='%23f37021' lebar-strok='6'/%3E%3Cbulatan cx='135' cy='140' r='6' isi='%23f37021'/%3E%3Cteks x='120' y='185' keluarga-font='Arial Hitam, sans-serif' saiz-font='22' berat-font='900' isi='%23f37021' sauh-teks='tengah' jarak-huruf='2'%3ESPEEDMART%3C/text%3E%3C/g%3E%3C/svg%3E",
+      "saiz": "512x512",
+      "jenis": "imej/svg+xml",
+      "tujuan": "boleh ditopengkan"
     }
   ]
 }

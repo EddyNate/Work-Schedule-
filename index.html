@@ -4,65 +4,191 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Weekly Schedule</title>
+
+<meta name="theme-color" content="#17324f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jadual Shift">
+<link rel="manifest" id="manifestPlaceholder">
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef1f4;color:#111}
+html,body{margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;background:#eef1f4;color:#111}
 button,input,select{font:inherit}
-.app{max-width:1400px;margin:auto;padding:14px}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.toolbar button{border:0;border-radius:10px;padding:11px 15px;background:#17324f;color:white;font-weight:700;cursor:pointer}
-.toolbar button.secondary{background:#fff;color:#17324f;border:1px solid #ccd3da}
-.toolbar button.danger{background:#9c2632}
-.sheet{background:#fff;border:2px solid #111;box-shadow:0 3px 12px #0002;overflow:hidden}
-.schedule-wrap{overflow:auto}
-.schedule{min-width:1080px;display:grid;grid-template-columns:145px repeat(7,minmax(105px,1fr)) 300px}
-.cell{border-right:1px solid #999;border-bottom:1px solid #999;min-height:88px;display:flex;align-items:center;justify-content:center;text-align:center;padding:7px;position:relative}
-.header{font-weight:800;font-size:20px;min-height:76px;background:#f5f5f5}
-.name{font-weight:800;font-size:17px;white-space:pre-line;justify-content:flex-start;padding-left:18px}
-.shift{font-size:18px;font-weight:500;cursor:pointer;white-space:pre-line}
-.rest{background:#a9dcea}
-.empty{color:#777}
-.legend{grid-row:1 / span 20;grid-column:9;padding:20px;background:#fff;display:block;border-bottom:0}
-.legend h2,.legend h3{margin:0 0 12px;text-align:center;color:white;background:#17324f;border-radius:12px;padding:7px}
-.legend h1{font-size:44px;line-height:.95;margin:45px 0;text-align:center;color:#17324f}
-.legend p{margin:9px 0;font-size:16px}
-.editor{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}
-.modal{background:#fff;border-radius:16px;max-width:430px;width:100%;padding:20px;box-shadow:0 15px 50px #0005}
-.modal h2{margin-top:0}
-.modal label{display:block;font-weight:700;margin:10px 0 5px}
-.modal input,.modal select{width:100%;padding:11px;border:1px solid #bbb;border-radius:9px}
-.actions{display:flex;gap:8px;margin-top:16px}
-.actions button{flex:1;padding:11px;border:0;border-radius:9px;font-weight:700;cursor:pointer}
-.save{background:#17324f;color:#fff}.cancel{background:#e8ecef}
-.note{font-size:12px;color:#666;margin-top:8px}
-@media(max-width:700px){.app{padding:8px}.toolbar button{padding:9px 11px}.schedule{min-width:980px}}
-<style>
-.schedule-wrap{width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;overscroll-behavior-x:contain;scrollbar-width:thin}
-.schedule{width:max-content;min-width:100%;grid-template-columns:145px repeat(7,125px) 300px}
-.scrollhint{display:none;margin:6px 0 10px;padding:7px 10px;border-radius:8px;background:#fff;border:1px solid #ccd3da;color:#17324f;font-size:13px;font-weight:700;text-align:center}
-@media(max-width:700px){.scrollhint{display:block}.schedule-wrap{overflow-x:scroll}.schedule{grid-template-columns:125px repeat(7,125px) 285px}}
-<style>
-.exporting .schedule-wrap{overflow:visible!important}
-.exporting .schedule{width:max-content!important;min-width:0!important}
-</style></style></style>
+.app{width:min(1400px,100%);margin:auto;padding:12px}
+
+.toolbar{
+ display:flex;
+ gap:8px;
+ align-items:center;
+ justify-content:space-between;
+ flex-wrap:wrap;
+ margin-bottom:12px;
+ background:#fff;
+ padding:8px 12px;
+ border-radius:10px;
+ border:1px solid #cbd5e1;
+ box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+.nav-group{display:flex;gap:4px;background:#f1f5f9;padding:4px;border-radius:8px}
+.nav-group button{border:0;background:transparent;padding:6px 12px;font-weight:700;cursor:pointer;border-radius:6px;color:#334155;font-size:14px}
+.nav-group button:hover{background:#e2e8f0}
+
+.action-group{display:flex;gap:8px}
+.menu-container{position:relative}
+.menu-btn{border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:6px}
+.menu-btn.primary{background:#17324f;color:#fff}
+.menu-btn.secondary{background:#f1f5f9;color:#17324f;border:1px solid #cbd5e1}
+
+.menu-dropdown{
+ display:none;
+ position:absolute;
+ top:calc(100% + 6px);
+ background:#fff;
+ min-width:200px;
+ border-radius:10px;
+ box-shadow:0 10px 25px rgba(0,0,0,0.15);
+ border:1px solid #e2e8f0;
+ z-index:99;
+ overflow:hidden;
+}
+.menu-dropdown.align-left{left:0;right:auto}
+.menu-dropdown.align-right{right:0;left:auto}
+
+.menu-dropdown.show{display:block}
+.menu-dropdown button{
+ display:block;
+ width:100%;
+ text-align:left;
+ padding:12px 16px;
+ border:0;
+ border-bottom:1px solid #f1f5f9;
+ background:#fff;
+ color:#1e293b;
+ font-weight:600;
+ font-size:14px;
+ cursor:pointer;
+ white-space:nowrap;
+}
+.menu-dropdown button:last-child{border-bottom:0}
+.menu-dropdown button:hover{background:#f8fafc}
+.menu-dropdown button.danger{color:#dc2626}
+.menu-dropdown button.danger:hover{background:#fef2f2}
+
+.edit-sheet{
+ width:100%;
+ background:#fff;
+ border:2px solid #17324f;
+ border-radius:8px;
+ box-shadow:0 3px 12px rgba(0,0,0,.12);
+ overflow:hidden;
+}
+.schedule-wrap{
+ width:100%;
+ overflow-x:auto;
+ overflow-y:hidden;
+ -webkit-overflow-scrolling:touch;
+ background:#fff;
+}
+.table-wrap{
+ width:max-content;
+ min-width:100%;
+}
+.schedule-table{
+ display:grid;
+ grid-template-columns:130px repeat(7, 105px);
+ grid-auto-rows:minmax(70px,1fr);
+}
+.cell{
+ min-width:0;
+ min-height:0;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ text-align:center;
+ padding:6px 4px;
+ white-space:pre-line;
+ line-height:1.2;
+ border-right:1px solid #ccc;
+ border-bottom:1px solid #ccc;
+ font-size:15px;
+}
+.header{background:#f1f5f9;font-weight:800;font-size:15px;color:#0f172a}
+.name{
+ font-weight:800;
+ font-size:14px;
+ position:sticky;
+ left:0;
+ background:#fff;
+ z-index:2;
+ border-right:2px solid #17324f;
+ box-shadow:2px 0 5px rgba(0,0,0,0.05);
+}
+.header:first-child{
+ position:sticky;
+ left:0;
+ z-index:3;
+ background:#e2e8f0;
+ border-right:2px solid #17324f;
+}
+.shift{font-size:16px;font-weight:700;cursor:pointer}
+.rest{background:#bae6fd}
+.al{background:#fef08a;color:#854d0e}
+.mc{background:#fca5a5;color:#991b1b}
+.ph{background:#fed7aa;color:#9a3412}
+.empty{color:#94a3b8}
+
+.note{font-size:14px;margin-top:8px;color:#475569}
+
+.editor{position:fixed!important;inset:0!important;background:rgba(0,0,0,.6)!important;display:none;align-items:center!important;justify-content:center!important;padding:16px!important;z-index:99999!important}
+.modal{background:#fff!important;color:#111!important;border-radius:16px!important;width:min(500px,94vw)!important;max-height:90vh!important;overflow:auto!important;padding:20px!important;box-shadow:0 18px 60px rgba(0,0,0,.4)!important}
+.modal h2{margin:0 0 16px;font-size:22px}
+.modal label{display:block;font-weight:700;margin:12px 0 4px;font-size:14px}
+.modal input,.modal select{display:block;width:100%;height:46px;padding:8px 12px;background:#fff;color:#111;border:1px solid #aaa;border-radius:8px;font-size:16px}
+.actions{display:flex;gap:10px;margin-top:20px}
+.actions button{height:46px;flex:1;border:0;border-radius:8px;font-weight:700;cursor:pointer;font-size:16px}
+.actions .save{background:#17324f;color:#fff}
+.actions .cancel{background:#e8ecef;color:#111}
+.actions .delete{background:#dc2626;color:#fff;flex:0.6}
+</style>
 </head>
 <body>
 <div class="app">
   <div class="toolbar">
-    <button onclick="prevWeek()">← Minggu lepas</button>
-    <button onclick="goToday()">Hari ini</button>
-    <button onclick="nextWeek()">Minggu depan →</button>
-    <button class="secondary" onclick="addStaff()">＋ Tambah staff</button>
-    <button class="secondary" onclick="saveData()">💾 Save</button>
-    <button class="secondary" onclick="exportPNG()">🖼️ Save FULL gambar</button>
-    <button onclick="shareWhatsApp()">📲 WhatsApp</button>
-    <button class="danger" onclick="resetData()">Reset</button>
+    <div class="nav-group">
+      <button onclick="prevWeek()">←</button>
+      <button onclick="goToday()">Hari ini</button>
+      <button onclick="nextWeek()">→</button>
+    </div>
+
+    <div class="action-group">
+      <div class="menu-container">
+        <button class="menu-btn secondary" onclick="toggleMenu('menuStaff')">👥 Staff ▾</button>
+        <div id="menuStaff" class="menu-dropdown align-left">
+          <button onclick="addStaff(); closeMenus();">＋ Tambah Staff</button>
+          <button class="danger" onclick="removeStaffPrompt(); closeMenus();">❌ Buang Staff</button>
+          <button class="danger" onclick="resetShiftsOnly(); closeMenus();">🧹 Reset Shift Sahaja</button>
+        </div>
+      </div>
+
+      <div class="menu-container">
+        <button class="menu-btn primary" onclick="toggleMenu('menuExport')">📤 Simpan & Share ▾</button>
+        <div id="menuExport" class="menu-dropdown align-right">
+          <button onclick="exportPNG(); closeMenus();">🖼️ Save FULL Gambar PNG</button>
+          <button onclick="shareWhatsApp(); closeMenus();">📲 Share ke WhatsApp</button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="sheet"><div class="schedule-wrap" id="scheduleScroller">
-    <div id="grid" class="schedule"></div></div>
+  <div class="edit-sheet">
+    <div class="schedule-wrap" id="scheduleScroller">
+      <div class="table-wrap"><div id="grid" class="schedule-table"></div></div>
+    </div>
   </div>
-  <div class="note">Tip: tekan mana-mana kotak shift untuk edit. Data disimpan dalam browser phone.</div>
+  <div class="note">💡 Tip: Tekan nama staff atau petak shift untuk edit/buang.</div>
 </div>
 
 <div id="editor" class="editor" onclick="if(event.target===this)closeEditor()">
@@ -70,15 +196,22 @@ button,input,select{font:inherit}
     <h2>Edit jadual</h2>
     <label>Nama staff</label>
     <input id="editName">
-    <label>Shift</label>
+    <label>Shift / Status</label>
     <select id="editShift">
-      <option value="">Kosong</option><option value="M">M — Morning</option>
-      <option value="N">N — Noon</option><option value="F">F — Full</option>
-      <option value="S">S — Special</option><option value="R">R — Rest (Off Day)</option>
+      <option value="">Kosong</option>
+      <option value="M">M — Morning</option>
+      <option value="N">N — Noon</option>
+      <option value="F">F — Full</option>
+      <option value="S">S — Special</option>
+      <option value="R">R — Rest (Off Day)</option>
+      <option value="AL">AL — Annual Leave</option>
+      <option value="MC">MC — Medical Leave</option>
+      <option value="PH">PH — Public Holiday</option>
     </select>
     <label>Catatan bawah shift (contoh: 4.5)</label>
     <input id="editNote" placeholder="Optional">
     <div class="actions">
+      <button class="delete" onclick="deleteCurrentStaff()">Padam Staff</button>
       <button class="cancel" onclick="closeEditor()">Batal</button>
       <button class="save" onclick="applyEdit()">Simpan</button>
     </div>
@@ -86,55 +219,98 @@ button,input,select{font:inherit}
 </div>
 
 <script>
+const manifestData = {
+  name: "Jadual Shift Staff",
+  short_name: "Jadual Shift",
+  start_url: "./",
+  display: "standalone",
+  background_color: "#eef1f4",
+  theme_color: "#17324f",
+  icons: [{
+    src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/99_Speedmart_logo.svg/512px-99_Speedmart_logo.svg.png",
+    sizes: "512x512",
+    type: "image/png"
+  }]
+};
+const stringManifest = JSON.stringify(manifestData);
+const blobManifest = new Blob([stringManifest], {type: 'application/json'});
+document.getElementById('manifestPlaceholder').setAttribute('href', URL.createObjectURL(blobManifest));
+
+if ('serviceWorker' in navigator) {
+  const swCode = `self.addEventListener('fetch', function(e) { e.respondWith(fetch(e.request).catch(() => caches.match(e.request))); });`;
+  const blobSW = new Blob([swCode], {type: 'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blobSW)).catch(()=>{});
+}
+
 const defaultStaff = [
-  {name:"NORA\\n(CS)", shifts:["N","M","R","N","S","N","M"], notes:["","","","","","","4.5"]},
-  {name:"DANISA\\n(CS)", shifts:["N","N","M","R","N","S","N"], notes:["","","4.5","","","",""]},
-  {name:"PRIYA\\n(CS)", shifts:["S","N","N","M","N","N","R"], notes:["","","","4.5","","",""]},
-  {name:"EDDY\\n(SK)", shifts:["R","M","S","N","N","M","N"], notes:["","4.5","","","","",""]},
-  {name:"SAM\\n(SK)", shifts:["M","N","N","M","S","R","N"], notes:["","","","4.5","","",""]},
-  {name:"SYAFIQ\\n(SK)", shifts:["N","R","M","N","","",""], notes:["","","","","","",""]},
-  {name:"Hafiz\\n(SK)", shifts:["M","M","N","R","N","N","S"], notes:["4.5","","","","","",""]}
+  {name:"NORA (CS)", shifts:["N","M","R","N","S","N","M"], notes:["","","","","","","4.5"]},
+  {name:"DANISA (CS)", shifts:["N","N","M","R","N","S","N"], notes:["","","4.5","","","",""]},
+  {name:"PRIYA (CS)", shifts:["S","N","N","M","N","N","R"], notes:["","","","4.5","","",""]},
+  {name:"EDDY (SK)", shifts:["R","M","S","N","N","M","N"], notes:["","4.5","","","","",""]},
+  {name:"SAM (SK)", shifts:["M","N","N","M","S","R","N"], notes:["","","","4.5","","",""]},
+  {name:"SYAFIQ (SK)", shifts:["N","R","M","N","","",""], notes:["","","","","","",""]},
+  {name:"Hafiz (SK)", shifts:["M","M","N","R","N","N","S"], notes:["4.5","","","","","",""]}
 ];
 
 let data = JSON.parse(localStorage.getItem("jadualStaffV1") || "null") || {weekStart:"2026-07-20", staff:defaultStaff};
 let editing={r:0,c:0};
 
+function toggleMenu(id){
+  const target = document.getElementById(id);
+  const isShow = target.classList.contains("show");
+  closeMenus();
+  if(!isShow) target.classList.add("show");
+}
+function closeMenus(){
+  document.querySelectorAll(".menu-dropdown").forEach(m=>m.classList.remove("show"));
+}
+document.addEventListener("click", function(e){
+  if(!e.target.closest(".menu-container")){ closeMenus(); }
+});
+
 function dateObj(s){let [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}
 function iso(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function addDays(s,n){let d=dateObj(s);d.setDate(d.getDate()+n);return iso(d)}
 function fmt(s){let d=dateObj(s);return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}`}
-function scrollSchedule(dir){const el=document.getElementById("scheduleScroller");if(el)el.scrollBy({left:dir*500,behavior:"smooth"});}
+
+function displayText(v){
+  let str = String(v ?? "").replace(/\\n/g, "\n");
+  return str.replace(/([^\n])\s*(\()/g, "$1\n$2");
+}
+
 function render(){
- const start=dateObj(data.weekStart), days=["MON.","TUE.","WED.","THUR.","FRI.","SAT.","SUN."];
- let g=document.getElementById("grid");
+ const days=["MON.","TUE.","WED.","THUR.","FRI.","SAT.","SUN."];
+ const g=document.getElementById("grid");
  g.innerHTML="";
  g.appendChild(cell("NAME","header"));
- for(let c=0;c<7;c++){let x=cell(`${days[c]}\\n${fmt(addDays(data.weekStart,c))}`,"header");g.appendChild(x)}
- let leg=cell("", "legend"); leg.innerHTML=`<h2>TIMEFRAME</h2>
- <p><b>M — MORNING</b> &nbsp; 8:45 AM – 5:45 PM</p>
- <p><b>N — NOON</b> &nbsp; 2:15 PM – 11:15 PM</p>
- <p><b>F — FULL</b> &nbsp; 8:45 AM – 11:15 PM</p>
- <p><b>S — SPECIAL</b> &nbsp; 8:45 AM – 1:45 PM</p>
- <p><b>R — REST</b> (OFF DAY)</p>
- <h1>WEEKLY<br>SCHEDULE</h1>
- <h3>REST TIME</h3>
- <p style="text-align:center"><b>Morning</b><br>• 1:00 PM – 2:00 PM<br>• 2:00 PM – 3:00 PM</p>
- <p style="text-align:center"><b>Noon</b><br>• 4:30 PM – 5:30 PM<br>• 5:30 PM – 6:30 PM</p>
- <p style="text-align:center"><b>Full</b><br>• 12:30 PM – 1:30 PM<br>• 5:00 PM – 6:00 PM</p>`;
- g.appendChild(leg);
+ for(let c=0;c<7;c++) g.appendChild(cell(days[c]+"\n"+fmt(addDays(data.weekStart,c)),"header"));
+
  data.staff.forEach((person,r)=>{
-   let n=cell(person.name,"name"); n.onclick=()=>edit(r,0,true); g.appendChild(n);
+   let n=cell(displayText(person.name),"name");
+   n.onclick=()=>edit(r,0,true);
+   g.appendChild(n);
    for(let c=0;c<7;c++){
-     let sh=person.shifts[c]||"", note=person.notes[c]||"";
-     let x=cell(sh+(note?`\\n(${note})`:""),"shift "+(sh==="R"?"rest":"")+(sh===""?" empty":""));
-     x.onclick=()=>edit(r,c,false); g.appendChild(x);
+     let sh=String(person.shifts[c]||"");
+     let note=String(person.notes[c]||"");
+     let value=sh+(note?`\n(${note})`:"");
+     
+     let shiftClass = "";
+     if(sh === "R") shiftClass = "rest";
+     else if(sh === "AL") shiftClass = "al";
+     else if(sh === "MC") shiftClass = "mc";
+     else if(sh === "PH") shiftClass = "ph";
+     else if(sh === "") shiftClass = "empty";
+
+     let x=cell(value,"shift "+shiftClass);
+     x.onclick=()=>edit(r,c,false);
+     g.appendChild(x);
    }
  });
 }
 function cell(t,cls){let x=document.createElement("div");x.className="cell "+cls;x.textContent=t;return x}
 function edit(r,c,nameOnly){
  editing={r,c,nameOnly};
- document.getElementById("editName").value=data.staff[r].name.replace("\\n"," ");
+ document.getElementById("editName").value=data.staff[r].name;
  document.getElementById("editShift").value=data.staff[r].shifts[c]||"";
  document.getElementById("editNote").value=data.staff[r].notes[c]||"";
  document.getElementById("editor").style.display="flex";
@@ -142,57 +318,310 @@ function edit(r,c,nameOnly){
 function closeEditor(){document.getElementById("editor").style.display="none"}
 function applyEdit(){
  let p=data.staff[editing.r];
- p.name=document.getElementById("editName").value.trim().replace(/\\n/g," ");
+ p.name=document.getElementById("editName").value.trim();
  if(!editing.nameOnly){p.shifts[editing.c]=document.getElementById("editShift").value;p.notes[editing.c]=document.getElementById("editNote").value.trim()}
  saveData();closeEditor();render();
 }
+function deleteCurrentStaff(){
+  const name = data.staff[editing.r].name;
+  if(confirm(`Adakah anda pasti mahu memadam ${name} daripada senarai?`)){
+    data.staff.splice(editing.r, 1);
+    saveData();
+    closeEditor();
+    render();
+  }
+}
 function saveData(){localStorage.setItem("jadualStaffV1",JSON.stringify(data));}
 function addStaff(){let name=prompt("Nama staff baru?");if(!name)return;data.staff.push({name,shifts:["","","","","","",""],notes:["","","","","","",""]});saveData();render()}
-function resetData(){if(confirm("Reset semua data ke contoh asal?")){localStorage.removeItem("jadualStaffV1");location.reload()}}
+
+function removeStaffPrompt(){
+  if(data.staff.length === 0){
+    alert("Tiada staff untuk dibuang.");
+    return;
+  }
+  let staffNames = data.staff.map((s, idx) => `${idx + 1}. ${s.name}`).join("\n");
+  let input = prompt(`Pilih nombor staff yang nak dibuang:\n\n${staffNames}`);
+  let index = parseInt(input) - 1;
+  if(!isNaN(index) && index >= 0 && index < data.staff.length){
+    let confirmDel = confirm(`Adakah anda pasti mahu padam "${data.staff[index].name}"?`);
+    if(confirmDel){
+      data.staff.splice(index, 1);
+      saveData();
+      render();
+    }
+  }
+}
+
+function resetShiftsOnly(){
+  if(confirm("Kosongkan semua shift & nota staff untuk minggu ini? (Nama staff & tarikh kekal)")){
+    data.staff.forEach(p => {
+      p.shifts = ["","","","","","",""];
+      p.notes = ["","","","","","",""];
+    });
+    saveData();
+    render();
+  }
+}
+
 function prevWeek(){data.weekStart=addDays(data.weekStart,-7);saveData();render()}
 function nextWeek(){data.weekStart=addDays(data.weekStart,7);saveData();render()}
 function goToday(){let d=new Date();let day=d.getDay();let diff=day===0?-6:1-day;d.setDate(d.getDate()+diff);data.weekStart=iso(d);saveData();render()}
 
 function fullCanvas(){
- const S=2,nw=250,dw=190,lw=440,hh=110,rh=118;
- const rows=data.staff.length,w=nw+7*dw+lw,h=hh+rows*rh;
- const c=document.createElement("canvas");c.width=w*S;c.height=h*S;
- const x=c.getContext("2d");x.scale(S,S);
- x.fillStyle="#fff";x.fillRect(0,0,w,h);
- x.fillStyle="#f5f5f5";x.fillRect(0,0,nw+7*dw,hh);
- x.fillStyle="#111";x.textAlign="center";x.font="800 25px Arial";x.fillText("NAME",nw/2,48);
- const ds=["MON.","TUE.","WED.","THUR.","FRI.","SAT.","SUN."];
- for(let i=0;i<7;i++){let px=nw+i*dw;x.font="800 23px Arial";x.fillText(ds[i],px+dw/2,40);x.font="700 20px Arial";x.fillText(fmt(data.dates[i]||addDays(data.weekStart,i)),px+dw/2,76);}
- for(let r=0;r<rows;r++){
-  let y=hh+r*rh,p=data.staff[r];
-  if(p.shifts.some(v=>v==="R")){}
-  x.fillStyle="#111";x.font="800 20px Arial";x.fillText(String(p.name||"").replace(/\\n/g," "),nw/2,y+55);
-  for(let i=0;i<7;i++){let px=nw+i*dw,sh=p.shifts[i]||"",note=p.notes[i]||"";x.fillStyle=sh==="R"?"#a9dcea":"#fff";x.fillRect(px,y,dw,rh);x.fillStyle="#111";x.font="600 23px Arial";x.fillText(sh,px+dw/2,y+55);if(note){x.font="600 18px Arial";x.fillText("("+note+")",px+dw/2,y+83);}}
- }
- x.strokeStyle="#999";x.lineWidth=2;
- for(let i=0;i<=7;i++){let px=i===0?0:nw+(i-1)*dw;x.beginPath();x.moveTo(px,0);x.lineTo(px,hh+rows*rh);x.stroke();}
- for(let r=0;r<=rows+1;r++){let y=r===0?0:hh+(r-1)*rh;x.beginPath();x.moveTo(0,y);x.lineTo(nw+7*dw,y);x.stroke();}
- const lx=nw+7*dw+25,ww=lw-50;
- x.fillStyle="#17324f";x.fillRect(lx,20,ww,52);x.fillStyle="#fff";x.font="800 23px Arial";x.fillText("TIMEFRAME",lx+ww/2,54);
- x.fillStyle="#111";x.font="700 17px Arial";x.textAlign="left";
- ["M — MORNING     8:45 AM – 5:45 PM","N — NOON        2:15 PM – 11:15 PM","F — FULL        8:45 AM – 11:15 PM","S — SPECIAL     8:45 AM – 1:45 PM","R — REST (OFF DAY)"].forEach((t,i)=>x.fillText(t,lx+15,110+i*34));
- x.textAlign="center";x.fillStyle="#17324f";x.font="800 40px Arial";x.fillText("WEEKLY",lx+ww/2,340);x.fillText("SCHEDULE",lx+ww/2,390);
- x.fillStyle="#17324f";x.fillRect(lx,420,ww,45);x.fillStyle="#fff";x.font="800 21px Arial";x.fillText("REST TIME",lx+ww/2,450);
- x.fillStyle="#111";x.textAlign="left";x.font="700 16px Arial";
- ["Morning","• 1:00 PM – 2:00 PM","• 2:00 PM – 3:00 PM","Noon","• 4:30 PM – 5:30 PM","• 5:30 PM – 6:30 PM","Full","• 12:30 PM – 1:30 PM","• 5:00 PM – 6:00 PM"].forEach((t,i)=>x.fillText(t,lx+15,505+i*30));
- return c;
+  const W=1600, H=1200;
+  const c=document.createElement("canvas");
+  c.width=W; c.height=H;
+  const x=c.getContext("2d");
+  if(!x) throw new Error("Canvas context unavailable");
+
+  x.fillStyle="#ffffff"; x.fillRect(0,0,W,H);
+
+  const staff=Array.isArray(data.staff)?data.staff:[];
+  const rows=Math.max(staff.length,1);
+  const legendW=400; 
+  const tableW=W-legendW;
+  const nameW=200;
+  const dayW=(tableW-nameW)/7;
+  const headerH=100;
+  const rowH=(H-headerH)/rows;
+  const days=["MON.","TUE.","WED.","THUR.","FRI.","SAT.","SUN."];
+
+  x.fillStyle="#f3f4f6";
+  x.fillRect(0,0,tableW,headerH);
+
+  x.fillStyle="#111111";
+  x.textAlign="center";
+  x.textBaseline="middle";
+  x.font="800 22px Arial";
+  x.fillText("NAME", nameW/2, headerH/2);
+
+  for(let i=0;i<7;i++){
+    const px=nameW+i*dayW;
+    x.fillStyle="#f3f4f6"; x.fillRect(px,0,dayW,headerH);
+
+    x.fillStyle="#111111";
+    x.font="800 20px Arial";
+    x.fillText(days[i], px+dayW/2, headerH/2 - 14);
+
+    x.fillStyle="#444444";
+    x.font="700 17px Arial";
+    x.fillText(fmt(addDays(data.weekStart,i)), px+dayW/2, headerH/2 + 16);
+  }
+
+  for(let r=0;r<rows;r++){
+    const y=headerH+r*rowH;
+    const p=staff[r]||{};
+    const name=displayText(p.name);
+    const nl=name.split("\n");
+
+    x.fillStyle="#ffffff"; x.fillRect(0,y,nameW,rowH);
+    x.fillStyle="#111111";
+    x.textAlign="center";
+    x.font="800 19px Arial";
+
+    if(nl.length>1){
+      x.fillText(nl[0], nameW/2, y+rowH*0.4);
+      x.fillStyle="#555555";
+      x.font="700 15px Arial";
+      x.fillText(nl[1], nameW/2, y+rowH*0.65);
+    }else{
+      x.fillText(name, nameW/2, y+rowH*0.5);
+    }
+
+    for(let i=0;i<7;i++){
+      const px=nameW+i*dayW;
+      const sh=String((p.shifts||[])[i]||"");
+      const note=String((p.notes||[])[i]||"");
+
+      if(sh === "R") x.fillStyle = "#9ed5eb";
+      else if(sh === "AL") x.fillStyle = "#fef08a";
+      else if(sh === "MC") x.fillStyle = "#fca5a5";
+      else if(sh === "PH") x.fillStyle = "#fed7aa";
+      else x.fillStyle = "#ffffff";
+
+      x.fillRect(px,y,dayW,rowH);
+
+      x.fillStyle="#111111";
+      x.textAlign="center";
+      x.font="800 22px Arial";
+      x.fillText(sh, px+dayW/2, y + (note ? rowH*0.42 : rowH*0.5));
+
+      if(note){
+        x.fillStyle="#444444";
+        x.font="600 15px Arial";
+        x.fillText("("+note+")", px+dayW/2, y+rowH*0.7);
+      }
+    }
+  }
+
+  x.strokeStyle="#aaaaaa";
+  x.lineWidth=1;
+  for(let i=0;i<=8;i++){
+    const px = i===0 ? 0 : (i===1 ? nameW : nameW+(i-1)*dayW);
+    x.beginPath(); x.moveTo(px,0); x.lineTo(px,H); x.stroke();
+  }
+  for(let r=0;r<=rows+1;r++){
+    const y = r===0 ? 0 : headerH+(r-1)*rowH;
+    x.beginPath(); x.moveTo(0,y); x.lineTo(tableW,y); x.stroke();
+  }
+
+  x.strokeStyle="#17324f";
+  x.lineWidth=3;
+  x.beginPath(); x.moveTo(tableW,0); x.lineTo(tableW,H); x.stroke();
+
+  const lx = tableW + 20;
+  const ww = legendW - 40;
+
+  function drawBadge(badgeY, text){
+    const bw = 240, bh = 40;
+    const bx = tableW + (legendW - bw)/2;
+    x.fillStyle = "#17324f";
+    x.beginPath();
+    x.roundRect(bx, badgeY, bw, bh, 20);
+    x.fill();
+
+    x.strokeStyle = "#ffffff";
+    x.lineWidth = 1.5;
+    x.beginPath();
+    x.roundRect(bx + 3, badgeY + 3, bw - 6, bh - 6, 17);
+    x.stroke();
+
+    x.fillStyle = "#ffffff";
+    x.textAlign = "center";
+    x.textBaseline = "middle";
+    x.font = "800 18px Georgia, serif";
+    x.fillText(text, bx + bw/2, badgeY + bh/2);
+  }
+
+  drawBadge(25, "TIMEFRAME");
+
+  const tf = [
+    { label: "M — MORNING", time: "8:45 AM – 5:45 PM" },
+    { label: "N — NOON",    time: "2:15 PM – 11:15 PM" },
+    { label: "F — FULL",    time: "8:45 AM – 11:15 PM" },
+    { label: "S — SPECIAL", time: "8:45 AM – 1:45 PM" },
+    { label: "R — REST",    time: "OFF DAY" },
+    { label: "AL — ANNUAL LEAVE", time: "" },
+    { label: "MC — MEDICAL LEAVE", time: "" },
+    { label: "PH — PUBLIC HOLIDAY", time: "" }
+  ];
+
+  let currY = 90;
+  tf.forEach(item => {
+    x.fillStyle = "#111111";
+    x.font = "700 14px Georgia, serif";
+    x.textAlign = "left";
+    x.fillText(item.label, lx, currY);
+
+    if(item.time){
+      x.textAlign = "right";
+      x.font = "600 13px Georgia, serif";
+      x.fillText(item.time, lx + ww, currY);
+    }
+    currY += 26;
+  });
+
+  currY = 325;
+  const boxW = ww;
+  
+  x.fillStyle = "#17324f";
+  x.fillRect(lx, currY, boxW, 60);
+  x.fillStyle = "#ffffff";
+  x.textAlign = "center";
+  x.textBaseline = "middle";
+  x.font = "900 40px 'Arial Black', Impact, sans-serif";
+  x.fillText("WEEKLY", lx + boxW/2, currY + 30);
+
+  currY += 65;
+  x.strokeStyle = "#17324f";
+  x.lineWidth = 4;
+  x.strokeRect(lx, currY, boxW, 55);
+  x.fillStyle = "#17324f";
+  x.font = "900 36px 'Arial Black', Impact, sans-serif";
+  x.fillText("SCHEDULE", lx + boxW/2, currY + 28);
+
+  drawBadge(525, "REST TIME");
+
+  const rtGroups = [
+    { title: "Morning", times: ["• 1:00 PM – 2:00 PM", "• 2:00 PM – 3:00 PM"] },
+    { title: "Noon",    times: ["• 4:30 PM – 5:30 PM", "• 5:30 PM – 6:30 PM"] },
+    { title: "Full",    times: ["• 12:30 PM – 1:30 PM", "• 5:00 PM – 6:00 PM"] }
+  ];
+
+  currY = 600;
+  rtGroups.forEach(g => {
+    x.strokeStyle = "#cccccc";
+    x.lineWidth = 1;
+    x.beginPath(); x.moveTo(lx, currY); x.lineTo(lx + 70, currY); x.stroke();
+    x.beginPath(); x.moveTo(lx + ww - 70, currY); x.lineTo(lx + ww, currY); x.stroke();
+
+    x.fillStyle = "#111111";
+    x.textAlign = "center";
+    x.font = "700 17px Georgia, serif";
+    x.fillText(g.title, lx + ww/2, currY);
+
+    currY += 28;
+    x.textAlign = "center";
+    x.font = "600 15px Georgia, serif";
+    x.fillStyle = "#333333";
+    g.times.forEach(t => {
+      x.fillText(t, lx + ww/2, currY);
+      currY += 24;
+    });
+    currY += 12;
+  });
+
+  x.strokeStyle = "#cccccc";
+  x.lineWidth = 1;
+  x.beginPath(); x.moveTo(lx + 40, 1140); x.lineTo(lx + 100, 1140); x.stroke();
+  x.beginPath(); x.moveTo(lx + ww - 100, 1140); x.lineTo(lx + ww - 40, 1140); x.stroke();
+
+  x.fillStyle = "#999999";
+  x.textAlign = "center";
+  x.font = "italic 700 16px Georgia, serif";
+  x.fillText("— 1464 —", lx + ww/2, 1140);
+
+  x.strokeStyle="#17324f";
+  x.lineWidth=4;
+  x.strokeRect(2, 2, W - 4, H - 4);
+
+  return c;
+}
+
+function downloadBlob(blob,name){
+ if(!blob) throw new Error("PNG kosong");
+ const u=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(u),5000);
 }
 function exportPNG(){
- try{let c=fullCanvas();c.toBlob(b=>{let u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download="weekly-schedule-full.png";a.click();setTimeout(()=>URL.revokeObjectURL(u),4000)},"image/png")}
- catch(e){alert("Gagal buat gambar. Cuba refresh app.");console.error(e)}
+ try{
+   const c=fullCanvas();
+   if(c.toBlob)c.toBlob(b=>{try{downloadBlob(b,"weekly-schedule-full.png")}catch(e){alert("Tak dapat simpan gambar.");}}, "image/png");
+   else downloadBlob(dataURLtoBlob(c.toDataURL("image/png")),"weekly-schedule-full.png");
+ }catch(e){console.error(e);alert("Gagal buat gambar. Cuba tekan Save semula.");}
+}
+function dataURLtoBlob(url){
+ const parts=url.split(","),mime=parts[0].match(/:(.*?);/)[1],bin=atob(parts[1]),arr=new Uint8Array(bin.length);
+ for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+ return new Blob([arr],{type:mime});
 }
 async function shareWhatsApp(){
- try{let c=fullCanvas(),b=await new Promise(r=>c.toBlob(r,"image/png")),f=new File([b],"weekly-schedule-full.png",{type:"image/png"});
- if(navigator.share&&navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({title:"Weekly Schedule",files:[f]});
- else{let u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download="weekly-schedule-full.png";a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);alert("Gambar penuh sudah disimpan. Attach ke WhatsApp.");}
- }catch(e){if(e.name!=="AbortError")alert("Share gagal. Cuba Save FULL gambar dahulu.")}
+ try{
+   const c=fullCanvas();
+   const blob=await new Promise(resolve=>c.toBlob?c.toBlob(resolve,"image/png"):resolve(dataURLtoBlob(c.toDataURL("image/png"))));
+   if(!blob)throw new Error("PNG kosong");
+   const file=new File([blob],"weekly-schedule-full.png",{type:"image/png"});
+   if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+     await navigator.share({title:"Weekly Schedule",files:[file]});
+   }else{
+     downloadBlob(blob,"weekly-schedule-full.png");
+     alert("Gambar penuh sudah disimpan. Attach gambar itu dalam WhatsApp.");
+   }
+ }catch(e){if(e.name!=="AbortError"){console.error(e);alert("Share gagal. Cuba Save FULL gambar dahulu.");}}
 }
-</script>
 
+render();
+</script>
 </body>
 </html>

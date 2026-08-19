@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Jadual Shift Staff</title>
 
-<meta name="theme-color" content="#17324f">
+<meta name="theme-color" content="#ffffff">
 <meta name="description" content="Aplikasi pengurusan jadual shift staff 99 Speedmart secara mingguan.">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Jadual Shift">
+<link rel="apple-touch-icon" href="./launchericon-192x192.png">
 <link rel="manifest" href="manifest.json">
 
 <style>
@@ -21,24 +22,52 @@ button,input,select{font:inherit}
 
 .toolbar{
  display:flex;
- gap:8px;
+ flex-direction:column;
  align-items:center;
- justify-content:space-between;
- flex-wrap:wrap;
+ gap:10px;
  margin-bottom:12px;
  background:#fff;
- padding:8px 12px;
+ padding:10px;
  border-radius:10px;
  border:1px solid #cbd5e1;
  box-shadow:0 2px 6px rgba(0,0,0,0.05);
 }
-.nav-group{display:flex;gap:4px;background:#f1f5f9;padding:4px;border-radius:8px}
-.nav-group button{border:0;background:transparent;padding:6px 12px;font-weight:700;cursor:pointer;border-radius:6px;color:#334155;font-size:14px}
+
+.nav-group{
+ display:flex;
+ gap:4px;
+ background:#f1f5f9;
+ padding:4px;
+ border-radius:8px;
+ width:fit-content;
+ margin:0 auto;
+}
+.nav-group button{border:0;background:transparent;padding:6px 16px;font-weight:700;cursor:pointer;border-radius:6px;color:#334155;font-size:14px}
 .nav-group button:hover{background:#e2e8f0}
 
-.action-group{display:flex;gap:8px}
-.menu-container{position:relative}
-.menu-btn{border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:6px}
+.action-group{
+ display:flex;
+ gap:6px;
+ width:100%;
+ justify-content:space-between;
+ flex-wrap:nowrap;
+}
+
+.menu-container{position:relative;flex:1}
+.menu-btn{
+ width:100%;
+ border:0;
+ border-radius:8px;
+ padding:8px 4px;
+ font-weight:700;
+ cursor:pointer;
+ font-size:13px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ gap:4px;
+ white-space:nowrap;
+}
 .menu-btn.primary{background:#17324f;color:#fff}
 .menu-btn.secondary{background:#f1f5f9;color:#17324f;border:1px solid #cbd5e1}
 
@@ -47,12 +76,13 @@ button,input,select{font:inherit}
  position:absolute;
  top:calc(100% + 6px);
  background:#fff;
- min-width:200px;
+ min-width:220px;
+ max-height:360px;
+ overflow-y:auto;
  border-radius:10px;
  box-shadow:0 10px 25px rgba(0,0,0,0.15);
- border:1px solid #e2e8f0;
+ border:1px solid #cbd5e1;
  z-index:99;
- overflow:hidden;
 }
 .menu-dropdown.align-left{left:0;right:auto}
 .menu-dropdown.align-right{right:0;left:auto}
@@ -62,13 +92,13 @@ button,input,select{font:inherit}
  display:block;
  width:100%;
  text-align:left;
- padding:12px 16px;
+ padding:12px 14px;
  border:0;
  border-bottom:1px solid #f1f5f9;
  background:#fff;
  color:#1e293b;
  font-weight:600;
- font-size:14px;
+ font-size:13px;
  cursor:pointer;
  white-space:nowrap;
 }
@@ -76,6 +106,24 @@ button,input,select{font:inherit}
 .menu-dropdown button:hover{background:#f8fafc}
 .menu-dropdown button.danger{color:#dc2626}
 .menu-dropdown button.danger:hover{background:#fef2f2}
+
+.ph-dropdown-header {
+ position:sticky;
+ top:0;
+ background: #fff8f3;
+ padding: 10px 12px;
+ font-size: 13px;
+ font-weight: bold;
+ color: #d9534f;
+ border-bottom: 1px solid #fed7aa;
+ z-index:2;
+}
+#ph-list {
+ margin: 0;
+ padding: 10px 12px 12px 22px;
+ font-size: 12px;
+ line-height: 1.6;
+}
 
 .edit-sheet{
  width:100%;
@@ -153,6 +201,32 @@ button,input,select{font:inherit}
 .actions .save{background:#17324f;color:#fff}
 .actions .cancel{background:#e8ecef;color:#111}
 .actions .delete{background:#dc2626;color:#fff;flex:0.6}
+
+.full-tracker-box {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 12px;
+}
+.full-tracker-box .title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #475569;
+}
+.full-tracker-box .count-info {
+  font-size: 15px;
+  font-weight: bold;
+  color: #17324f;
+  margin-top: 2px;
+}
+.full-tracker-box .warning-msg {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: bold;
+  margin-top: 4px;
+  display: none;
+}
 </style>
 </head>
 <body>
@@ -166,11 +240,19 @@ button,input,select{font:inherit}
 
     <div class="action-group">
       <div class="menu-container">
+        <button class="menu-btn secondary" onclick="toggleMenu('menuPH')">📅 Calendar ▾</button>
+        <div id="menuPH" class="menu-dropdown align-left">
+          <div class="ph-dropdown-header" id="cal-month-title">Senarai Cuti Umum</div>
+          <ul id="ph-list"></ul>
+        </div>
+      </div>
+
+      <div class="menu-container">
         <button class="menu-btn secondary" onclick="toggleMenu('menuStaff')">👥 Staff ▾</button>
         <div id="menuStaff" class="menu-dropdown align-left">
           <button onclick="addStaff(); closeMenus();">＋ Tambah Staff</button>
           <button class="danger" onclick="removeStaffPrompt(); closeMenus();">❌ Buang Staff</button>
-          <button class="danger" onclick="resetShiftsOnly(); closeMenus();">🧹 Reset Shift Sahaja</button>
+          <button class="danger" onclick="resetShiftsOnly(); closeMenus();">🧹 Reset Shift Minggu Ini</button>
         </div>
       </div>
 
@@ -189,7 +271,7 @@ button,input,select{font:inherit}
       <div class="table-wrap"><div id="grid" class="schedule-table"></div></div>
     </div>
   </div>
-  <div class="note">💡 Tip: Tekan nama staff atau petak shift untuk edit/buang.</div>
+  <div class="note">💡 Tip: Tekan nama staff atau petak shift untuk edit/buang. Tekan (← / →) untuk tukar minggu.</div>
 </div>
 
 <div id="editor" class="editor" onclick="if(event.target===this)closeEditor()">
@@ -198,7 +280,7 @@ button,input,select{font:inherit}
     <label>Nama staff</label>
     <input id="editName">
     <label>Shift / Status</label>
-    <select id="editShift">
+    <select id="editShift" onchange="updateFullTrackerLive()">
       <option value="">Kosong</option>
       <option value="M">M — Morning</option>
       <option value="N">N — Noon</option>
@@ -209,6 +291,13 @@ button,input,select{font:inherit}
       <option value="MC">MC — Medical Leave</option>
       <option value="PH">PH — Public Holiday</option>
     </select>
+    
+    <div class="full-tracker-box">
+      <div class="title" id="trackerCycleTitle">📊 Pengiraan Shift FULL (Kitaran 23hb - 23hb):</div>
+      <div class="count-info" id="fullTrackerText">0 / 3 Kali (0 / 13.5 Jam)</div>
+      <div class="warning-msg" id="fullWarningText">⚠️ Amaran: Staff ini telah melebihi limit 3x Full (13.5 Jam) bagi kitaran ini!</div>
+    </div>
+
     <label>Catatan bawah shift (contoh: 4.5)</label>
     <input id="editNote" placeholder="Optional">
     <div class="actions">
@@ -224,17 +313,89 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 
-const defaultStaff = [
-  {name:"NORA (CS)", shifts:["N","M","R","N","S","N","M"], notes:["","","","","","","4.5"]},
-  {name:"DANISA (CS)", shifts:["N","N","M","R","N","S","N"], notes:["","","4.5","","","",""]},
-  {name:"PRIYA (CS)", shifts:["S","N","N","M","N","N","R"], notes:["","","","4.5","","",""]},
-  {name:"EDDY (SK)", shifts:["R","M","S","N","N","M","N"], notes:["","4.5","","","","",""]},
-  {name:"SAM (SK)", shifts:["M","N","N","M","S","R","N"], notes:["","","","4.5","","",""]},
-  {name:"SYAFIQ (SK)", shifts:["N","R","M","N","","",""], notes:["","","","","","",""]},
-  {name:"Hafiz (SK)", shifts:["M","M","N","R","N","N","S"], notes:["4.5","","","","","",""]}
+const publicHolidays = [
+  { date: "2026-01-01", name: "Tahun Baru 2026" },
+  { date: "2026-02-01", name: "Hari Wilayah Persekutuan" },
+  { date: "2026-02-17", name: "Tahun Baru Cina" },
+  { date: "2026-02-18", name: "Tahun Baru Cina (Hari Ke-2)" },
+  { date: "2026-03-20", name: "Hari Raya Aidilfitri" },
+  { date: "2026-03-21", name: "Hari Raya Aidilfitri (Hari Ke-2)" },
+  { date: "2026-05-01", name: "Hari Pekerja" },
+  { date: "2026-05-27", name: "Hari Raya Aidiladha" },
+  { date: "2026-05-31", name: "Hari Wesak" },
+  { date: "2026-06-01", name: "Hari Pertuan Agong" },
+  { date: "2026-06-16", name: "Awal Muharram" },
+  { date: "2026-08-25", name: "Maulidur Rasul" },
+  { date: "2026-08-31", name: "Hari Kebangsaan" },
+  { date: "2026-09-16", name: "Hari Malaysia" },
+  { date: "2026-11-08", name: "Hari Deepavali" },
+  { date: "2026-12-25", name: "Hari Krismas" }
 ];
 
-let data = JSON.parse(localStorage.getItem("jadualStaffV1") || "null") || {weekStart:"2026-07-20", staff:defaultStaff};
+function loadPHList() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const monthNames = ["Jan", "Feb", "Mac", "Apr", "Mei", "Jun", "Jul", "Ogos", "Sep", "Okt", "Nov", "Dis"];
+  const todayFormatted = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+  document.getElementById("cal-month-title").innerText = `Senarai Cuti Umum ${year}`;
+  const phListUl = document.getElementById("ph-list");
+  phListUl.innerHTML = "";
+
+  publicHolidays.forEach(h => {
+    const [y, m, d] = h.date.split("-");
+    const monthName = monthNames[parseInt(m) - 1];
+    const li = document.createElement("li");
+    li.style.marginBottom = "6px";
+
+    if (h.date < todayFormatted) {
+      li.style.color = "#94a3b8";
+      li.style.opacity = "0.65";
+      li.innerHTML = `<span style="text-decoration: line-through;"><b>${parseInt(d)} ${monthName}:</b> ${h.name}</span>`;
+    } else {
+      li.style.color = "#0f172a";
+      li.style.fontWeight = "bold";
+      li.innerHTML = `<b>${parseInt(d)} ${monthName}:</b> ${h.name}`;
+    }
+    phListUl.appendChild(li);
+  });
+}
+
+window.addEventListener("DOMContentLoaded", loadPHList);
+
+const defaultStaffNames = ["NORA (CS)", "DANISA (CS)", "PRIYA (CS)", "EDDY (SK)", "SAM (SK)", "SYAFIQ (SK)", "Hafiz (SK)"];
+
+let allWeeksData = JSON.parse(localStorage.getItem("jadualAllWeeksV2") || "{}");
+let currentWeekStart = getCurrentMondayStr();
+
+function getCurrentMondayStr() {
+  let d = new Date();
+  let day = d.getDay();
+  let diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  return iso(d);
+}
+
+function getWeekData(weekStartStr) {
+  if (!allWeeksData[weekStartStr]) {
+    let masterStaffList = JSON.parse(localStorage.getItem("jadualMasterStaffList") || "null");
+    if (!masterStaffList) {
+      masterStaffList = defaultStaffNames;
+      localStorage.setItem("jadualMasterStaffList", JSON.stringify(masterStaffList));
+    }
+    
+    allWeeksData[weekStartStr] = {
+      weekStart: weekStartStr,
+      staff: masterStaffList.map(name => ({
+        name: name,
+        shifts: ["","","","","","",""],
+        notes: ["","","","","","",""]
+      }))
+    };
+  }
+  return allWeeksData[weekStartStr];
+}
+
 let editing={r:0,c:0};
 
 function toggleMenu(id){
@@ -265,9 +426,12 @@ function render(){
  const g=document.getElementById("grid");
  g.innerHTML="";
  g.appendChild(cell("NAME","header"));
- for(let c=0;c<7;c++) g.appendChild(cell(days[c]+"\n"+fmt(addDays(data.weekStart,c)),"header"));
+ 
+ const currentData = getWeekData(currentWeekStart);
 
- data.staff.forEach((person,r)=>{
+ for(let c=0;c<7;c++) g.appendChild(cell(days[c]+"\n"+fmt(addDays(currentWeekStart,c)),"header"));
+
+ currentData.staff.forEach((person,r)=>{
    let n=cell(displayText(person.name),"name");
    n.onclick=()=>edit(r,0,true);
    g.appendChild(n);
@@ -290,44 +454,167 @@ function render(){
  });
 }
 function cell(t,cls){let x=document.createElement("div");x.className="cell "+cls;x.textContent=t;return x}
+
+function getCycleRange(targetDateStr) {
+  let d = dateObj(targetDateStr);
+  let year = d.getFullYear();
+  let month = d.getMonth(); 
+  let day = d.getDate();
+
+  let start, end;
+  if (day >= 23) {
+    start = new Date(year, month, 23);
+    end = new Date(year, month + 1, 23);
+  } else {
+    start = new Date(year, month - 1, 23);
+    end = new Date(year, month, 23);
+  }
+  return { start: iso(start), end: iso(end) };
+}
+
+function updateFullTrackerLive() {
+  const currentData = getWeekData(currentWeekStart);
+  const staffObj = currentData.staff[editing.r];
+  if(!staffObj) return;
+
+  const targetDateStr = addDays(currentWeekStart, editing.c);
+  const cycle = getCycleRange(targetDateStr);
+
+  document.getElementById("trackerCycleTitle").innerText = `📊 Full (23/` + fmt(cycle.start) + ` hingga 23/` + fmt(cycle.end) + `):`;
+
+  let totalFullInCycle = 0;
+
+  Object.keys(allWeeksData).forEach(wStart => {
+    let weekObj = allWeeksData[wStart];
+    let personInWeek = weekObj.staff.find(s => s.name.trim() === staffObj.name.trim());
+    
+    if(personInWeek && personInWeek.shifts) {
+      for(let dayIdx = 0; dayIdx < 7; dayIdx++) {
+        let currentDate = addDays(wStart, dayIdx);
+        
+        if(currentDate >= cycle.start && currentDate <= cycle.end) {
+          let shiftValue = personInWeek.shifts[dayIdx];
+          
+          if (wStart === currentWeekStart && dayIdx === editing.c && !editing.nameOnly) {
+            shiftValue = document.getElementById("editShift").value;
+          }
+
+          if (shiftValue === "F") {
+            totalFullInCycle++;
+          }
+        }
+      }
+    }
+  });
+
+  const totalHours = totalFullInCycle * 4.5;
+  const trackerText = document.getElementById("fullTrackerText");
+  const warningText = document.getElementById("fullWarningText");
+
+  trackerText.innerText = `${totalFullInCycle} / 3 Kali (${totalHours.toFixed(1)} / 13.5 Jam)`;
+
+  if(totalFullInCycle > 3) {
+    trackerText.style.color = "#dc2626";
+    warningText.style.display = "block";
+  } else {
+    trackerText.style.color = "#17324f";
+    warningText.style.display = "none";
+  }
+}
+
 function edit(r,c,nameOnly){
  editing={r,c,nameOnly};
- document.getElementById("editName").value=data.staff[r].name;
- document.getElementById("editShift").value=data.staff[r].shifts[c]||"";
- document.getElementById("editNote").value=data.staff[r].notes[c]||"";
+ const currentData = getWeekData(currentWeekStart);
+ document.getElementById("editName").value=currentData.staff[r].name;
+ document.getElementById("editShift").value=currentData.staff[r].shifts[c]||"";
+ document.getElementById("editNote").value=currentData.staff[r].notes[c]||"";
+ 
+ updateFullTrackerLive();
  document.getElementById("editor").style.display="flex";
 }
+
 function closeEditor(){document.getElementById("editor").style.display="none"}
+
 function applyEdit(){
- let p=data.staff[editing.r];
- p.name=document.getElementById("editName").value.trim();
- if(!editing.nameOnly){p.shifts[editing.c]=document.getElementById("editShift").value;p.notes[editing.c]=document.getElementById("editNote").value.trim()}
- saveData();closeEditor();render();
+ let currentData = getWeekData(currentWeekStart);
+ let p = currentData.staff[editing.r];
+ let oldName = p.name;
+ let newName = document.getElementById("editName").value.trim();
+
+ p.name = newName;
+ if(!editing.nameOnly){
+   p.shifts[editing.c]=document.getElementById("editShift").value;
+   p.notes[editing.c]=document.getElementById("editNote").value.trim();
+ }
+
+ if (oldName !== newName && newName !== "") {
+   let masterStaffList = JSON.parse(localStorage.getItem("jadualMasterStaffList") || "[]");
+   let idx = masterStaffList.indexOf(oldName);
+   if (idx !== -1) masterStaffList[idx] = newName;
+   else masterStaffList.push(newName);
+   localStorage.setItem("jadualMasterStaffList", JSON.stringify(masterStaffList));
+ }
+
+ saveData();
+ closeEditor();
+ render();
 }
+
 function deleteCurrentStaff(){
-  const name = data.staff[editing.r].name;
-  if(confirm(`Adakah anda pasti mahu memadam ${name} daripada senarai?`)){
-    data.staff.splice(editing.r, 1);
+  let currentData = getWeekData(currentWeekStart);
+  const name = currentData.staff[editing.r].name;
+  if(confirm(`Adakah anda pasti mahu memadam ${name} daripada jadual?`)){
+    currentData.staff.splice(editing.r, 1);
+    
+    let masterStaffList = JSON.parse(localStorage.getItem("jadualMasterStaffList") || "[]");
+    masterStaffList = masterStaffList.filter(n => n !== name);
+    localStorage.setItem("jadualMasterStaffList", JSON.stringify(masterStaffList));
+
     saveData();
     closeEditor();
     render();
   }
 }
-function saveData(){localStorage.setItem("jadualStaffV1",JSON.stringify(data));}
-function addStaff(){let name=prompt("Nama staff baru?");if(!name)return;data.staff.push({name,shifts:["","","","","","",""],notes:["","","","","","",""]});saveData();render()}
+
+function saveData(){
+  localStorage.setItem("jadualAllWeeksV2", JSON.stringify(allWeeksData));
+}
+
+function addStaff(){
+  let name = prompt("Nama staff baru?");
+  if(!name) return;
+  
+  let masterStaffList = JSON.parse(localStorage.getItem("jadualMasterStaffList") || "[]");
+  if(!masterStaffList.includes(name)) {
+    masterStaffList.push(name);
+    localStorage.setItem("jadualMasterStaffList", JSON.stringify(masterStaffList));
+  }
+
+  let currentData = getWeekData(currentWeekStart);
+  currentData.staff.push({name, shifts:["","","","","","",""], notes:["","","","","","",""]});
+  saveData();
+  render();
+}
 
 function removeStaffPrompt(){
-  if(data.staff.length === 0){
+  let currentData = getWeekData(currentWeekStart);
+  if(currentData.staff.length === 0){
     alert("Tiada staff untuk dibuang.");
     return;
   }
-  let staffNames = data.staff.map((s, idx) => `${idx + 1}. ${s.name}`).join("\n");
+  let staffNames = currentData.staff.map((s, idx) => `${idx + 1}. ${s.name}`).join("\n");
   let input = prompt(`Pilih nombor staff yang nak dibuang:\n\n${staffNames}`);
   let index = parseInt(input) - 1;
-  if(!isNaN(index) && index >= 0 && index < data.staff.length){
-    let confirmDel = confirm(`Adakah anda pasti mahu padam "${data.staff[index].name}"?`);
+  if(!isNaN(index) && index >= 0 && index < currentData.staff.length){
+    let delName = currentData.staff[index].name;
+    let confirmDel = confirm(`Adakah anda pasti mahu padam "${delName}"?`);
     if(confirmDel){
-      data.staff.splice(index, 1);
+      currentData.staff.splice(index, 1);
+      
+      let masterStaffList = JSON.parse(localStorage.getItem("jadualMasterStaffList") || "[]");
+      masterStaffList = masterStaffList.filter(n => n !== delName);
+      localStorage.setItem("jadualMasterStaffList", JSON.stringify(masterStaffList));
+
       saveData();
       render();
     }
@@ -335,8 +622,9 @@ function removeStaffPrompt(){
 }
 
 function resetShiftsOnly(){
-  if(confirm("Kosongkan semua shift & nota staff untuk minggu ini? (Nama staff & tarikh kekal)")){
-    data.staff.forEach(p => {
+  if(confirm("Kosongkan semua shift & nota staff untuk minggu ini sahaja?")){
+    let currentData = getWeekData(currentWeekStart);
+    currentData.staff.forEach(p => {
       p.shifts = ["","","","","","",""];
       p.notes = ["","","","","","",""];
     });
@@ -345,9 +633,18 @@ function resetShiftsOnly(){
   }
 }
 
-function prevWeek(){data.weekStart=addDays(data.weekStart,-7);saveData();render()}
-function nextWeek(){data.weekStart=addDays(data.weekStart,7);saveData();render()}
-function goToday(){let d=new Date();let day=d.getDay();let diff=day===0?-6:1-day;d.setDate(d.getDate()+diff);data.weekStart=iso(d);saveData();render()}
+function prevWeek(){
+  currentWeekStart = addDays(currentWeekStart, -7);
+  render();
+}
+function nextWeek(){
+  currentWeekStart = addDays(currentWeekStart, 7);
+  render();
+}
+function goToday(){
+  currentWeekStart = getCurrentMondayStr();
+  render();
+}
 
 function fullCanvas(){
   const W=1600, H=1200;
@@ -358,7 +655,8 @@ function fullCanvas(){
 
   x.fillStyle="#ffffff"; x.fillRect(0,0,W,H);
 
-  const staff=Array.isArray(data.staff)?data.staff:[];
+  const currentData = getWeekData(currentWeekStart);
+  const staff=Array.isArray(currentData.staff)?currentData.staff:[];
   const rows=Math.max(staff.length,1);
   const legendW=400; 
   const tableW=W-legendW;
@@ -387,7 +685,7 @@ function fullCanvas(){
 
     x.fillStyle="#444444";
     x.font="700 17px Arial";
-    x.fillText(fmt(addDays(data.weekStart,i)), px+dayW/2, headerH/2 + 16);
+    x.fillText(fmt(addDays(currentWeekStart,i)), px+dayW/2, headerH/2 + 16);
   }
 
   for(let r=0;r<rows;r++){
@@ -579,8 +877,8 @@ function downloadBlob(blob,name){
 function exportPNG(){
  try{
    const c=fullCanvas();
-   if(c.toBlob)c.toBlob(b=>{try{downloadBlob(b,"weekly-schedule-full.png")}catch(e){alert("Tak dapat simpan gambar.");}}, "image/png");
-   else downloadBlob(dataURLtoBlob(c.toDataURL("image/png")),"weekly-schedule-full.png");
+   if(c.toBlob)c.toBlob(b=>{try{downloadBlob(b,`weekly-schedule-${currentWeekStart}.png`)}catch(e){alert("Tak dapat simpan gambar.");}}, "image/png");
+   else downloadBlob(dataURLtoBlob(c.toDataURL("image/png")),`weekly-schedule-${currentWeekStart}.png`);
  }catch(e){console.error(e);alert("Gagal buat gambar. Cuba tekan Save semula.");}
 }
 function dataURLtoBlob(url){
@@ -593,11 +891,11 @@ async function shareWhatsApp(){
    const c=fullCanvas();
    const blob=await new Promise(resolve=>c.toBlob?c.toBlob(resolve,"image/png"):resolve(dataURLtoBlob(c.toDataURL("image/png"))));
    if(!blob)throw new Error("PNG kosong");
-   const file=new File([blob],"weekly-schedule-full.png",{type:"image/png"});
+   const file=new File([blob],`weekly-schedule-${currentWeekStart}.png`,{type:"image/png"});
    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
      await navigator.share({title:"Weekly Schedule",files:[file]});
    }else{
-     downloadBlob(blob,"weekly-schedule-full.png");
+     downloadBlob(blob,`weekly-schedule-${currentWeekStart}.png`);
      alert("Gambar penuh sudah disimpan. Attach gambar itu dalam WhatsApp.");
    }
  }catch(e){if(e.name!=="AbortError"){console.error(e);alert("Share gagal. Cuba Save FULL gambar dahulu.");}}
